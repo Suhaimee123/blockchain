@@ -1,0 +1,128 @@
+
+  <!-- index.html -->
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Blockchain App</title>
+      <link rel="stylesheet" type="text/css" href="../static/index.css">
+  </head>
+  <body>
+      <div class="container">
+          <h1>Blockchain App</h1>
+          <div class="blockchain" id="blockchain"></div>
+          <button onclick="getChain()">Get Chain</button>
+          <button onclick="mineBlock('easy')" id="mineEasyButton">Mine Block (Easy)</button>
+          <button onclick="mineBlock('hard')" id="mineHardButton">Mine Block (Hard)</button>    
+      </div>
+      <div class="container">
+          <h1>Blockchain App</h1>
+          <!-- Bootstrap card -->
+          <div class="card">
+              <div class="card-body" id="blockchainData">
+                  <!-- JSON data will be displayed here -->
+              </div>
+          </div>
+          <div class="card">
+              <div class="card-body" id="blockmine">
+                  <!-- JSON data will be displayed here -->
+              </div>
+          </div>
+      </div>
+      <!-- Spinner HTML -->
+      <div id="spinner" style="display: none;">
+          <img src="spinner.gif" alt="Loading Spinner">
+      </div>
+  
+      <script>
+          function getChain() {
+              fetch('/get_chain')
+                  .then(response => response.json())
+                  .then(data => {
+                      displayBlockchainData(data);
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                  });
+          }
+          function displayBlockchainData(data) {
+              const blockchainDataDiv = document.getElementById('blockchainData');
+              blockmine.innerHTML = '';
+              blockchainDataDiv.innerHTML = '';
+  
+              if (data.chain && data.chain.length > 0) {
+                  data.chain.forEach(block => {
+                      const blockDiv = document.createElement('div');
+                      blockDiv.classList.add('block');
+                      blockDiv.innerHTML = `
+                          <h2>Block ${block.index}</h2>
+                          <p>Data: ${block.data}</p>
+                          <p>Timestamp: ${block.timestamp}</p>
+                          <p>Nonce: ${block.nonce}</p>
+                          <p>Previous Hash: ${block.previous_hash}</p>
+                          <p>Hash: ${block.hash}</p>
+                      `;
+                      blockchainDataDiv.appendChild(blockDiv);
+                  });
+              }
+          }
+  
+  
+  
+  
+  function mineBlock(difficulty) {
+      const spinner = document.getElementById('spinner');
+      spinner.style.display = 'block';
+  
+      fetch(`/mining/${difficulty}`)
+          .then(response => response.json())
+          .then(data => {
+              blockchainData.innerHTML = '';
+  
+              document.getElementById('blockmine').innerHTML = JSON.stringify(data, null, 2);
+  
+              console.log(data.message);
+              displayBlock(data);
+          })
+          .catch(error => {
+              console.error('Error:', error);
+          })
+          .finally(() => {
+              spinner.style.display = 'none';
+          });
+  }
+  
+  function displayBlock(data) {
+      const blockchainDataDiv = document.getElementById('blockmine');
+      blockchainData.innerHTML = '';
+      
+      const latestBlock = data.chain[data.chain.length - 1];
+              const blockDiv = document.createElement('div');
+              blockDiv.classList.add('block');
+              blockDiv.innerHTML = `
+                  <h2>Block ${latestBlock.index}</h2>
+                  <p>Data: ${latestBlock.data}</p>
+                  <p>Timestamp: ${latestBlock.timestamp}</p>
+                  <p>Nonce: ${latestBlock.nonce}</p>
+                  <p>Previous Hash: ${latestBlock.previous_hash}</p>
+                  <p>Hash: ${latestBlock.hash}</p>
+              `;
+              blockchainDataDiv.appendChild(blockDiv);
+          }
+  
+  
+          function checkValidity() {
+              fetch('/is_valid')
+                  .then(response => response.json())
+                  .then(data => {
+                      console.log(data.message);
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                  });
+          }
+      </script>
+  </body>
+  </html>
+  
